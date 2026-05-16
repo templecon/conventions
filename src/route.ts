@@ -1,41 +1,24 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { Env } from "./types";
 import { registerAllPrompts } from "@/prompt/registry";
+import { registerConventionsTool } from "@/conventions-tool";
 
-let appSingleton: McpServer | null = null;
-let previousEnv: Env | null = null;
-
-function getStringEnv(obj: Record<string, unknown>): Record<string, string> {
-    return Object.fromEntries(
-        Object.entries(obj).filter(
-            (entry): entry is [string, string] => typeof entry[1] === "string"
-        )
-    );
-}
-function isCached(env: Env): boolean {
-    if (!appSingleton || !previousEnv) {
-        return false;
-    }
-
-    return (
-        JSON.stringify(getStringEnv(env)) ===
-        JSON.stringify(getStringEnv(previousEnv))
-    );
-}
-
-export function setup(env: Env) {
-    if (isCached(env)) {
-        return appSingleton as McpServer;
-    }
-
+/**
+ * Creates an MCP server instance.
+ *
+ * @param includeTool - When `true`, the `read-convention` tool is registered
+ *   (intended for the `/with-tool/mcp` route used by VS Code Copilot).
+ */
+export function setup(env: Env, includeTool: boolean) {
     const app = new McpServer({
         name: "Conventions MCP Server",
         version: "1.0.0",
     });
 
     registerAllPrompts(app);
+    if (includeTool) {
+        registerConventionsTool(app);
+    }
 
-    appSingleton = app;
-    previousEnv = env;
     return app;
 }
