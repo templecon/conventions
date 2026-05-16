@@ -18,7 +18,7 @@ jobs:
                 shardIndex: [1, 2] # [1,2,3,4,5...]
                 shardTotal: [2] # [len(shardIndex)]
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
             - name: Install pnpm
               uses: pnpm/action-setup@v5
@@ -77,7 +77,7 @@ jobs:
 
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - name: Setup pnpm Environment
               uses: concertypin/action/pnpm-install@master
 
