@@ -9,7 +9,7 @@ describe("skill registry", () => {
     const skills = getSkills();
 
     it.concurrent("should discover all skill files", () => {
-        expect(skills).toHaveLength(7);
+        expect(skills).toHaveLength(8);
     });
 
     it.concurrent("should have RFC-compliant names", () => {
@@ -104,5 +104,11 @@ describe("skill registry", () => {
         const svelte = skills.find((s) => s.name === "svelte");
         expect(svelte).toBeDefined();
         expect(svelte?.description).toContain("Svelte 5");
+    });
+
+    it.concurrent("should include mcp-server", () => {
+        const mcp = skills.find((s) => s.name === "mcp-server");
+        expect(mcp).toBeDefined();
+        expect(mcp?.description).toContain("MCP");
     });
 });

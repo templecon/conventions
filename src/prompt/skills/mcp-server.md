@@ -1,3 +1,8 @@
+---
+name: mcp-server
+description: "MCP server conventions (tools, schemas, resources, annotations). Use when: registering MCP tools or resources, defining Zod schemas, configuring tool annotations, or structuring MCP server code."
+---
+
 # MCP Server Conventions
 
 These rules apply to the runtime MCP server code in `src/index.ts` and `src/route.ts`.
@@ -10,7 +15,6 @@ These rules apply to the runtime MCP server code in `src/index.ts` and `src/rout
 - Keep setup idempotent so the module can be initialized more than once without duplicating registration.
 - The `/mcp` endpoint exposes conventions as **resources** (general-purpose clients).
 - The `/with-tool/mcp` endpoint exposes the **`read-convention` tool** only (for VS Code Copilot).
-- Use options like `{ includeTool, includeResources }` to control what each endpoint exposes.
 
 ## Tools
 

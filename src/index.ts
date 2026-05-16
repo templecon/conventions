@@ -22,20 +22,20 @@ let toolMcpServer:
 
 const app = new Hono<HonoEnv>()
     .use("*", cors)
-    // MCP endpoint without read-convention tool (general purpose)
+    // MCP endpoint — exposes conventions as resources (general purpose)
     .all("/mcp", async (c) => {
         if (!mcpServer) {
-            mcpServer = setup(c.env, false);
+            mcpServer = setup(c.env, { includeResources: true });
         }
         if (!mcpServer.isConnected()) {
             await mcpServer.connect(transport);
         }
         return transport.handleRequest(c);
     })
-    // MCP endpoint WITH read-convention tool (VS Code Copilot only)
+    // MCP endpoint — exposes read-convention tool only (VS Code Copilot)
     .all("/with-tool/mcp", async (c) => {
         if (!toolMcpServer) {
-            toolMcpServer = setup(c.env, true);
+            toolMcpServer = setup(c.env, { includeTool: true });
         }
         if (!toolMcpServer.isConnected()) {
             await toolMcpServer.connect(toolTransport);
@@ -65,8 +65,8 @@ const app = new Hono<HonoEnv>()
         return c.text(`Conventions MCP Server
 
 Endpoints:
-  GET  /mcp                                          MCP protocol (without read-convention tool)
-  GET  /with-tool/mcp                                MCP protocol (with read-convention tool, for Copilot)
+  GET  /mcp                                          MCP protocol — conventions as resources (general purpose)
+  GET  /with-tool/mcp                                MCP protocol — read-convention tool only (for Copilot)
   GET  /.well-known/agent-skills/index.json           Agent Skills discovery index
   GET  /.well-known/agent-skills/:name/SKILL.md       Individual skill content`);
     });

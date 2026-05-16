@@ -1,5 +1,7 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import * as z from "zod";
+import {
+    McpServer,
+    ResourceTemplate,
+} from "@modelcontextprotocol/sdk/server/mcp.js";
 
 /**
  * Parsed skill entry from frontmatter + body.
@@ -117,29 +119,66 @@ export function getSkills(): SkillEntry[] {
 }
 
 /**
- * Registers every discovered skill as an MCP prompt on the given server.
+ * Registers every discovered skill as an MCP resource on the given server.
  *
- * Each prompt uses an empty args schema (no user-supplied arguments) and
- * returns the skill body as a user-message prompt.
+ * Uses a `ResourceTemplate` with URI pattern `convention://{name}` so clients
+ * can list and read individual convention documents. This is intended for the
+ * plain `/mcp` endpoint. The `/with-tool/mcp` endpoint (for Copilot) does NOT
+ * register resources — only the `read-convention` tool.
  */
-export function registerAllPrompts(app: McpServer): void {
-    for (const skill of skills) {
-        app.registerPrompt(
-            skill.name,
-            {
-                title: skill.name,
-                description: skill.description,
-                argsSchema: z.object({}).shape,
-            },
-            async () => ({
-                messages: [
+export function registerAllResources(app: McpServer): void {
+    const template = new ResourceTemplate("convention://{name}", {
+        list: async () => ({
+            resources: skills.map((s) => ({
+                uri: `convention://${s.name}`,
+                name: s.name,
+                description: s.description,
+                mimeType: "text/markdown",
+            })),
+        }),
+    });
+
+    app.registerResource(
+        "convention",
+        template,
+        {
+            description: "Project coding conventions",
+            mimeType: "text/markdown",
+        },
+        async (uri, variables) => {
+            const name = variables.name as string | undefined;
+            if (!name) {
+                return {
+                    contents: [
+                        {
+                            uri: uri.href,
+                            mimeType: "text/plain",
+                            text: "Convention not found — missing name in URI.",
+                        },
+                    ],
+                };
+            }
+            const skill = skills.find((s) => s.name === name);
+            if (!skill) {
+                return {
+                    contents: [
+                        {
+                            uri: uri.href,
+                            mimeType: "text/plain",
+                            text: `Convention "${name}" not found.`,
+                        },
+                    ],
+                };
+            }
+            return {
+                contents: [
                     {
-                        content: { type: "text" as const, text: skill.body },
-                        role: "user" as const,
+                        uri: uri.href,
+                        mimeType: "text/markdown",
+                        text: skill.body,
                     },
                 ],
-                description: skill.description,
-            })
-        );
-    }
+            };
+        }
+    );
 }
