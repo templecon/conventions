@@ -21,7 +21,14 @@ This template includes example MCP implementations:
 
 ### Prompts
 
-- `nplus1` - Generates tests for N+1 query issues in Java Spring applications
+The following skills are automatically registered as MCP prompts and exposed via Agent Skills discovery (`/.well-known/agent-skills/`):
+
+- `hono-conventions` - Enforce Hono routing & type conventions
+- `hono-cloudflare-workers` - Hono + Cloudflare Workers platform conventions
+- `tests` - Run tests with Vitest
+- `tools` - Configure project tooling (oxlint, Prettier)
+- `typescript` - Enforce TypeScript conventions
+- `typescript-schema` - Define Zod validation schemas with JSDoc
 
 ## Getting Started
 

@@ -52,7 +52,8 @@ const checks: InspectorCheck[] = [
     {
         name: "List prompts",
         args: ["--method", "prompts/list"],
-        validate: (value) => hasNamedItems(value, "prompts", ["nplus1"]),
+        validate: (value) =>
+            hasNamedItems(value, "prompts", ["hono-conventions"]),
     },
 ];
 
