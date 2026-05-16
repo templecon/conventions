@@ -41,6 +41,11 @@ const app = new Hono<HonoEnv>()
         });
     })
     .get("/", (c) => {
-        return c.text("Hello, World! This is MCP server.");
+        return c.text(`Conventions MCP Server
+
+Endpoints:
+  GET  /mcp                                          MCP protocol endpoint, streamable HTTP without authentication
+  GET  /.well-known/agent-skills/index.json           Agent Skills discovery index
+  GET  /.well-known/agent-skills/:name/SKILL.md       Individual skill content`);
     });
 export default app;
