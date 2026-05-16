@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "tsBuildInfoFile": "./node_modules/.cache/node.tsbuildinfo",
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "types": ["vite/client", "@types/node"]
+    },
+    "include": [
+        "./*.ts",
+        "!./*.d.ts",
+        "./*.js",
+        "./*.mjs",
+        "./.simple-git-hooks.mjs",
+        "scripts/**/*.ts"
+    ],
+    "exclude": ["worker-configuration.d.ts"],
+    "extends": "./tsconfig.base.json"
+}

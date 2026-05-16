@@ -1,0 +1,52 @@
+name: Template Validation
+
+on:
+    workflow_dispatch:
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    validate-template:
+        timeout-minutes: 10
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v5
+              with:
+                  run_install: false
+
+            - name: Install Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: package.json
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Check formatting
+              run: pnpm exec prettier --check .
+
+            - name: Run lint
+              run: pnpm run lint:check
+
+            - name: Run tests
+              run: pnpm test
+
+            - name: Build
+              run: pnpm build
+
+            - name: Type check
+              run: pnpm exec tsc -b --pretty false
+
+            - name: Verify generated Cloudflare types
+              run: |
+                  pnpm run cf-typegen
+                  git diff --exit-code -- worker-configuration.d.ts
+
+            - name: Run inspector E2E smoke test
+              run: pnpm run e2e:inspector
