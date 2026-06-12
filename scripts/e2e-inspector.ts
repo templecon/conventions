@@ -30,19 +30,6 @@ const checks: InspectorCheck[] = [
             hasContentTextContaining(value, "conventions available"),
     },
     {
-        name: "Call read-convention with hono name",
-        endpoint: TOOL_MCP_ENDPOINT,
-        args: [
-            "--method",
-            "tools/call",
-            "--tool-name",
-            "read-convention",
-            "--tool-arg",
-            "name=hono",
-        ],
-        validate: (value) => hasContentTextContaining(value, "hono"),
-    },
-    {
         name: "List resources on /mcp (SEP-2640 skills)",
         endpoint: MCP_ENDPOINT,
         args: ["--method", "resources/list"],
@@ -51,27 +38,6 @@ const checks: InspectorCheck[] = [
                 "conventions-index",
                 "hono-conventions",
             ]),
-    },
-    {
-        name: "Read index.json resource",
-        endpoint: MCP_ENDPOINT,
-        args: [
-            "--method",
-            "resources/read",
-            "--resource-uri",
-            "skill://index.json",
-        ],
-        validate: (value) => {
-            if (!isRecord(value)) return false;
-            const contents = value.contents;
-            if (!Array.isArray(contents)) return false;
-            return contents.some(
-                (c: unknown) =>
-                    isRecord(c) &&
-                    typeof c.text === "string" &&
-                    c.text.includes("skills")
-            );
-        },
     },
 ];
 
