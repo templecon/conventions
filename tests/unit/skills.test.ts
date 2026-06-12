@@ -82,12 +82,6 @@ describe("skill registry", () => {
         expect(tests?.description).toContain("Vitest");
     });
 
-    it.concurrent("should include tools", () => {
-        const tools = skills.find((s) => s.name === "tools");
-        expect(tools).toBeDefined();
-        expect(tools?.description).toContain("tooling");
-    });
-
     it.concurrent("should include typescript", () => {
         const ts = skills.find((s) => s.name === "typescript");
         expect(ts).toBeDefined();
@@ -110,5 +104,11 @@ describe("skill registry", () => {
         const mcp = skills.find((s) => s.name === "mcp-server");
         expect(mcp).toBeDefined();
         expect(mcp?.description).toContain("MCP");
+    });
+
+    it.concurrent("should include hono-openapi", () => {
+        const openapi = skills.find((s) => s.name === "hono-openapi");
+        expect(openapi).toBeDefined();
+        expect(openapi?.description).toContain("OpenAPI");
     });
 });

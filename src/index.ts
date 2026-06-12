@@ -50,7 +50,7 @@ const app = new Hono<HonoEnv>()
             "Cache-Control": "public, max-age=3600",
         });
     })
-    .get("/.well-known/agent-skills/:name/SKILL.md", (c) => {
+    .get("/.well-known/agent-skills/:name/SKILL.md", async (c) => {
         const name = c.req.param("name");
         const content = getSkillContent(name);
         if (!content) {

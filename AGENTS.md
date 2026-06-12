@@ -5,10 +5,12 @@ All agents, such as Claude Code, should keep `**/AGENTS.md` in mind.
 
 ## Project Type
 
-This is an **MCP Server template** for building Model Context Protocol servers with TypeScript. It provides:
+This is a **Conventions MCP Server** — a production [Model Context Protocol](https://modelcontextprotocol.io/) server that exposes project coding conventions as MCP resources and tools. It provides:
 
-- MCP SDK integration for tools and prompts
-- Hono web framework for HTTP transport
+- **MCP Resources** under the `skill://` URI scheme ([SEP-2640](https://github.com/modelcontextprotocol/experimental-ext-skills) Skills Extension)
+- **MCP Tool** (`read-convention`) for convention search and retrieval
+- **Agent Skills** HTTP well-known discovery endpoints (`/.well-known/agent-skills/`)
+- Hono web framework for Streamable HTTP transport
 - Zod validation for MCP tool schemas
 - Vitest with Cloudflare worker pool for testing
 
@@ -31,13 +33,29 @@ pnpm lint
 pnpm test
 ```
 
-## Coding Standards
+## Serving Methods
 
-If you can't access the project's convention, such as hono, typescript, typescript-schema, ask user for adding MCP server.
-MCP Server:
+### MCP Endpoints
 
-- Endpoint: https://conventions.aieuroka.workers.dev/mcp (for most clients), https://conventions.aieuroka.workers.dev/with-tool/mcp (for GitHub Copilot, which doesn't support resource retrieval)
+- `https://conventions.aieuroka.workers.dev/mcp` — general-purpose MCP with `skill://` resources (for most clients, check [implementations](#sep-2640-skills-extension))
+- `https://conventions.aieuroka.workers.dev/with-tool/mcp` — `read-convention` tool only (for GitHub Copilot, which doesn't support resource retrieval)
 - Streamable HTTP, without authentication
+
+#### SEP-2640 Skills Extension
+
+This server implements the [SEP-2640](https://github.com/modelcontextprotocol/experimental-ext-skills) experimental extension for serving skills over MCP:
+
+- Conventions are served as MCP resources under `skill://{name}/SKILL.md`
+- A discovery index is available at `skill://index.json` (MCP resource)
+- The server declares `io.modelcontextprotocol/skills` in its capabilities
+- The extension uses the existing `resources/read` primitive — no new protocol methods
+
+### HTTP Agent Skills Discovery
+
+In addition to MCP resources, the server implements [Agent Skills Discovery via Well-Known URIs](https://github.com/cloudflare/agent-skills-discovery-rfc) RFC and serves the Agent Skills well-known URI endpoints:
+
+- `/.well-known/agent-skills/index.json` — RFC v0.2.0 discovery index with SHA-256 digests
+- `/.well-known/agent-skills/{name}/SKILL.md` — raw skill content including YAML frontmatter
 
 ## TypeScript Configuration
 
@@ -49,31 +67,5 @@ This project uses pnpm.
 
 ## Cloudflare Workers
 
-This template uses `wrangler` for Cloudflare Workers development and deployment.
+This project is deployed on Cloudflare Workers using `wrangler`.
 Configuration is in `wrangler.jsonc`.
-
-## Using This Template In A New Project
-
-When this repository is copied or renamed for a real project, update the template-specific identifiers before shipping:
-
-- `package.json`
-    - Change `name` to the new package name.
-    - Update `repository.url` if the project lives in a different repo.
-    - Adjust `author` and any other publishing metadata if needed.
-- `wrangler.jsonc`
-    - Change the top-level `name`.
-    - Set `env.prod.name` to the production Worker name if you use that environment.
-    - Review `compatibility_date` if the template should target a different deploy date.
-- `src/route.ts`
-    - Replace the MCP server display name currently set to `Example MCP Server`.
-    - Update any user-facing tool, prompt, or description text that still says `Example`.
-- `src/utils/cors.ts`
-    - Review CORS settings to ensure they fit the new project's needs. The template allows as much as possible.
-- `scripts/inspect.ts`
-    - Replace the `remote` placeholder endpoint with the real MCP endpoint for the new project.
-    - Update the default tool name and args if the template's example tool changes.
-- Repo text
-    - Search for leftover template strings such as `template-mcp-ts`, `template`, and `Example MCP Server`.
-    - Update README or docs references that still point at the template repo or placeholder project name.
-
-Keep the runtime behavior the same unless the new project needs different names or deployment settings.

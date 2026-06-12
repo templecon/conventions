@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { Env } from "./types";
-import { registerAllResources } from "@/prompt/registry";
+import { registerSkillResources } from "@/skills-mcp";
 import { registerConventionsTool } from "@/conventions-tool";
 
 export type SetupOptions = {
@@ -35,7 +35,7 @@ export function setup(env: Env, options?: SetupOptions) {
     });
 
     if (includeResources) {
-        registerAllResources(app);
+        registerSkillResources(app);
     }
     if (includeTool) {
         registerConventionsTool(app);

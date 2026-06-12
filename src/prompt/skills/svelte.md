@@ -9,9 +9,10 @@ It describes Svelte rules for the project.
 > This is not an absolute rule! If you have a good reason to break the rule, feel free to do it with proper justification in code review.
 
 - [TL;DR](#tldr)
-- [Detail](#detail)
+    - [Detail](#detail)
     - [Svelte 5 is alive](#svelte-5-is-alive)
-    - [Dealing with heavy components](#dont-ship-elephant-on-bicycle)
+    - [Don't Ship Elephant on Bicycle](#dont-ship-elephant-on-bicycle)
+    - [Documentation](#documentation)
 
 ## TL;DR
 

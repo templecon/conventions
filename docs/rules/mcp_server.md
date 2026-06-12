@@ -8,9 +8,10 @@ These rules apply to the runtime MCP server code in `src/index.ts` and `src/rout
 - Keep MCP registration in the setup module.
 - Use `registerTool` / `registerResource` + `ResourceTemplate` instead of custom capability wiring.
 - Keep setup idempotent so the module can be initialized more than once without duplicating registration.
-- The `/mcp` endpoint exposes conventions as **resources** (general-purpose clients).
+- The `/mcp` endpoint exposes conventions as `skill://` **resources** per SEP-2640 (general-purpose clients).
 - The `/with-tool/mcp` endpoint exposes the **`read-convention` tool** only (for VS Code Copilot).
 - Use options like `{ includeTool, includeResources }` to control what each endpoint exposes.
+- The MCP server declares `io.modelcontextprotocol/skills` in its capabilities extension field.
 
 ## Tools
 
@@ -43,10 +44,14 @@ If a hint is not clearly true, leave it out.
 ## Resources
 
 - Keep resources single-purpose.
-- Use `ResourceTemplate` with a descriptive URI scheme (e.g. `convention://{name}`).
+- Use `ResourceTemplate` with the `skill://` URI scheme per SEP-2640 (e.g. `skill://{name}/SKILL.md`).
 - Provide a `list` callback so clients can discover available resources.
 - Provide an async `read` callback returning `{ contents: [{ uri, mimeType, text }] }`.
 - Keep resource descriptions short and specific.
+- Expose a `skill://index.json` resource as the SEP-2640 discovery index.
+- The discovery index uses SEP-2640's MCP-specific schema: `{ skills: [{ url, digest, frontmatter }] }` — no `$schema`, no `type` field.
+- Each index entry includes a SHA-256 `digest` and verbatim YAML frontmatter as a JSON `frontmatter` object.
+- Register `io.modelcontextprotocol/skills` extension capability in the `McpServer` constructor.
 
 ## Layout
 

@@ -15,8 +15,6 @@ It describes TypeScript rules for the project for readability.
 - [Use `satisfies` instead of `as` for type assertions where possible.](#anyone-dislikes-any-as-much-as-anyone)
 - [Write JSDoc comments for all exported functions and classes!](#write-essay-for-code)
 - [Use named types instead of inline types on destructured parameters.](#brain-can-stackoverflow)
-- Use Hono method chaining for route definitions so route typing stays useful in tests.
-- Do not chain routes only when the route is not meant to be exposed as a normal app endpoint, such as `/docs`.
 
 ## Detail
 
@@ -176,17 +174,5 @@ function processData(userData: UserData) {
     );
 }
 ```
-
-### Hono Route Chaining
-
-Hono's testing helper infers route types best when routes are chained directly from the `Hono` instance. That keeps `testClient()` and similar helpers useful in tests.
-
-```ts
-const app = new Hono().get("/search", (c) => {
-    return c.json({ ok: true });
-});
-```
-
-Prefer this style for public app routes. If a route is not meant to be exposed as a normal endpoint, such as `/docs`, you can define it separately instead of forcing method chaining.
 
 [^1]: This is automatically applied when you use VSCode with project settings.

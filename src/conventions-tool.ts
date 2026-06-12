@@ -7,11 +7,17 @@ const inputSchema = z.object({
      * Optional skill name to read full content of a specific convention.
      * When omitted, lists all available conventions with their descriptions.
      */
-    name: z.string().optional(),
+    name: z.string().optional().meta({
+        description:
+            "Name of the convention to read. Omit to list all conventions.",
+    }),
     /**
      * Optional search term to filter conventions by name or description.
      */
-    query: z.string().optional(),
+    query: z.string().optional().meta({
+        description:
+            "Search term to filter conventions by name or description.",
+    }),
 });
 
 /**
@@ -29,7 +35,8 @@ export function registerConventionsTool(app: McpServer): void {
             description:
                 "Read project coding conventions by skill name, or search available conventions. " +
                 "Use when you need to understand the project's coding standards, testing practices, " +
-                "or tooling configuration.",
+                "or tooling configuration. " +
+                "At the start of a conversation, call this tool WITHOUT arguments to list all available conventions.",
             inputSchema,
             annotations: {
                 readOnlyHint: true,
@@ -50,7 +57,7 @@ export function registerConventionsTool(app: McpServer): void {
                         content: [
                             {
                                 type: "text" as const,
-                                text: `Convention "${name}" not found. Available: ${skills.map((s) => s.name).join(", ")}`,
+                                text: `Convention "${name}" does not exist. Use "read-convention" without arguments to list all available conventions.`,
                             },
                         ],
                         isError: true,
@@ -75,6 +82,16 @@ export function registerConventionsTool(app: McpServer): void {
                         s.name.toLowerCase().includes(q) ||
                         s.description.toLowerCase().includes(q)
                 );
+                if (filtered.length === 0) {
+                    return {
+                        content: [
+                            {
+                                type: "text" as const,
+                                text: `No conventions match your query "${query}". Use "read-convention" without arguments to list all available conventions.`,
+                            },
+                        ],
+                    };
+                }
             }
 
             const lines = filtered.map(
