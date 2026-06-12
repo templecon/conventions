@@ -17,7 +17,7 @@ Use this when defining runtime validation schemas and the TypeScript types deriv
 ## JSDoc on Internal Schemas
 
 > [!NOTE]
-> For internal schemas, prefer property JSDoc. If a schema is part of an external API, keep `.meta()` or other explicit API docs alongside it.
+> For internal schemas, prefer property JSDoc. If a schema is part of an external API, keep `.meta()` or other explicit API docs alongside it to preserve visibility in generated docs.
 
 Do not use `.describe()` or `.meta()` as the primary place for schema documentation. Those annotations are not as visible in IDEs as property JSDoc, so the docs become easier to miss during implementation.
 

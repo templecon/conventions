@@ -1,8 +1,3 @@
-import {
-    McpServer,
-    ResourceTemplate,
-} from "@modelcontextprotocol/sdk/server/mcp.js";
-
 /**
  * Parsed skill entry from frontmatter + body.
  */
@@ -116,69 +111,4 @@ for (const [filePath, mod] of Object.entries(modules)) {
  */
 export function getSkills(): SkillEntry[] {
     return skills;
-}
-
-/**
- * Registers every discovered skill as an MCP resource on the given server.
- *
- * Uses a `ResourceTemplate` with URI pattern `convention://{name}` so clients
- * can list and read individual convention documents. This is intended for the
- * plain `/mcp` endpoint. The `/with-tool/mcp` endpoint (for Copilot) does NOT
- * register resources — only the `read-convention` tool.
- */
-export function registerAllResources(app: McpServer): void {
-    const template = new ResourceTemplate("convention://{name}", {
-        list: async () => ({
-            resources: skills.map((s) => ({
-                uri: `convention://${s.name}`,
-                name: s.name,
-                description: s.description,
-                mimeType: "text/markdown",
-            })),
-        }),
-    });
-
-    app.registerResource(
-        "convention",
-        template,
-        {
-            description: "Project coding conventions",
-            mimeType: "text/markdown",
-        },
-        async (uri, variables) => {
-            const name = variables.name as string | undefined;
-            if (!name) {
-                return {
-                    contents: [
-                        {
-                            uri: uri.href,
-                            mimeType: "text/plain",
-                            text: "Convention not found — missing name in URI.",
-                        },
-                    ],
-                };
-            }
-            const skill = skills.find((s) => s.name === name);
-            if (!skill) {
-                return {
-                    contents: [
-                        {
-                            uri: uri.href,
-                            mimeType: "text/plain",
-                            text: `Convention "${name}" not found.`,
-                        },
-                    ],
-                };
-            }
-            return {
-                contents: [
-                    {
-                        uri: uri.href,
-                        mimeType: "text/markdown",
-                        text: skill.body,
-                    },
-                ],
-            };
-        }
-    );
 }

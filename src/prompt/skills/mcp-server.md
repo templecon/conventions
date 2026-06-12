@@ -5,7 +5,7 @@ description: "MCP server conventions (tools, schemas, resources, annotations). U
 
 # MCP Server Conventions
 
-These rules apply to the runtime MCP server code in `src/index.ts` and `src/route.ts`.
+These rules apply to the runtime MCP server code.
 
 ## Architecture
 
@@ -13,8 +13,6 @@ These rules apply to the runtime MCP server code in `src/index.ts` and `src/rout
 - Keep MCP registration in the setup module.
 - Use `registerTool` / `registerResource` + `ResourceTemplate` instead of custom capability wiring.
 - Keep setup idempotent so the module can be initialized more than once without duplicating registration.
-- The `/mcp` endpoint exposes conventions as **resources** (general-purpose clients).
-- The `/with-tool/mcp` endpoint exposes the **`read-convention` tool** only (for VS Code Copilot).
 
 ## Tools
 
@@ -90,7 +88,7 @@ server.registerTool(
         },
     },
     async (input) => {
-        input satisfies z.input<typeof inputSchema>;
+        input satisfies z.output<typeof inputSchema>;
 
         return {
             content: [],
