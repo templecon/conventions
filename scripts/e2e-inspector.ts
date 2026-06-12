@@ -5,55 +5,73 @@ const HOST = "127.0.0.1";
 const PORT = 5173;
 const BASE_URL = `http://${HOST}:${PORT}`;
 const MCP_ENDPOINT = `${BASE_URL}/mcp`;
+const TOOL_MCP_ENDPOINT = `${BASE_URL}/with-tool/mcp`;
 const PNPM = "pnpm";
 
 type InspectorCheck = {
     name: string;
+    endpoint: string;
     args: string[];
     validate: (value: unknown) => boolean;
 };
 
 const checks: InspectorCheck[] = [
     {
-        name: "List tools",
+        name: "List tools on /with-tool/mcp",
+        endpoint: TOOL_MCP_ENDPOINT,
         args: ["--method", "tools/list"],
-        validate: (value) =>
-            hasNamedItems(value, "tools", ["greet", "ungreet"]),
+        validate: (value) => hasNamedItems(value, "tools", ["read-convention"]),
     },
     {
-        name: "Call greet",
+        name: "Call read-convention (list all)",
+        endpoint: TOOL_MCP_ENDPOINT,
+        args: ["--method", "tools/call", "--tool-name", "read-convention"],
+        validate: (value) =>
+            hasContentTextContaining(value, "conventions available"),
+    },
+    {
+        name: "Call read-convention with hono name",
+        endpoint: TOOL_MCP_ENDPOINT,
         args: [
             "--method",
             "tools/call",
             "--tool-name",
-            "greet",
+            "read-convention",
             "--tool-arg",
-            "name=Template",
+            "name=hono",
         ],
-        validate: (value) =>
-            hasNestedString(
-                value,
-                ["structuredContent", "greeting"],
-                "Hello, Template!"
-            ),
+        validate: (value) => hasContentTextContaining(value, "hono"),
     },
     {
-        name: "Call ungreet",
+        name: "List resources on /mcp (SEP-2640 skills)",
+        endpoint: MCP_ENDPOINT,
+        args: ["--method", "resources/list"],
+        validate: (value) =>
+            hasNamedItems(value, "resources", [
+                "conventions",
+                "conventions-index",
+            ]),
+    },
+    {
+        name: "Read index.json resource",
+        endpoint: MCP_ENDPOINT,
         args: [
             "--method",
-            "tools/call",
-            "--tool-name",
-            "ungreet",
-            "--tool-arg",
-            "name=Template",
+            "resources/read",
+            "--resource-uri",
+            "skill://index.json",
         ],
-        validate: (value) => hasContentText(value, "Goodbye, Template!"),
-    },
-    {
-        name: "List prompts",
-        args: ["--method", "prompts/list"],
-        validate: (value) =>
-            hasNamedItems(value, "prompts", ["hono-conventions"]),
+        validate: (value) => {
+            if (!isRecord(value)) return false;
+            const contents = value.contents;
+            if (!Array.isArray(contents)) return false;
+            return contents.some(
+                (c: unknown) =>
+                    isRecord(c) &&
+                    typeof c.text === "string" &&
+                    c.text.includes("skills")
+            );
+        },
     },
 ];
 
@@ -72,28 +90,18 @@ function hasNamedItems(value: unknown, key: string, names: string[]): boolean {
     return names.every((name) => actualNames.includes(name));
 }
 
-function hasNestedString(
-    value: unknown,
-    path: string[],
-    expected: string
-): boolean {
-    let current = value;
-    for (const key of path) {
-        if (!isRecord(current)) {
-            return false;
-        }
-        current = current[key];
-    }
-    return current === expected;
-}
-
-function hasContentText(value: unknown, expected: string): boolean {
+function hasContentTextContaining(value: unknown, needle: string): boolean {
     if (!isRecord(value) || !Array.isArray(value.content)) {
         return false;
     }
     return value.content
         .filter(isRecord)
-        .some((item) => item.type === "text" && item.text === expected);
+        .some(
+            (item) =>
+                item.type === "text" &&
+                typeof item.text === "string" &&
+                item.text.toLowerCase().includes(needle.toLowerCase())
+        );
 }
 
 function parseInspectorJson(output: string): unknown {
@@ -127,7 +135,7 @@ function runInspector(check: InspectorCheck) {
         "dlx",
         "@modelcontextprotocol/inspector",
         "--cli",
-        MCP_ENDPOINT,
+        check.endpoint,
         "--transport",
         "http",
         ...check.args,
