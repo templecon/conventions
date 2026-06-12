@@ -48,8 +48,8 @@ const checks: InspectorCheck[] = [
         args: ["--method", "resources/list"],
         validate: (value) =>
             hasNamedItems(value, "resources", [
-                "conventions",
                 "conventions-index",
+                "hono-conventions",
             ]),
     },
     {

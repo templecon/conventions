@@ -51,6 +51,8 @@ When creating mock objects, use the `strictObject` helper instead of plain type 
 
 ```typescript
 // helpers/strict-object.ts
+import { expect } from "vitest";
+
 /**
  * Creates a strict object proxy that makes tests fail
  * when accessing unimplemented properties.
