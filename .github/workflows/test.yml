@@ -36,7 +36,7 @@ jobs:
             - name: Get cache(Leader)
               # Only leader can save cache, avoiding locking problem from race conditions
               if: ${{matrix.shardIndex == 1}}
-              uses: actions/cache@v5
+              uses: actions/cache@v6
               with:
                   path: ${{ steps.ready-cache.outputs.STORE_PATH }}
                   key: pnpm-deps-cache-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -44,7 +44,7 @@ jobs:
             - name: Get cache(Follower)
               # Only restore cache for followers
               if: ${{matrix.shardIndex != 1}}
-              uses: actions/cache/restore@v5
+              uses: actions/cache/restore@v6
               with:
                   key: pnpm-deps-cache-${{ hashFiles('**/pnpm-lock.yaml') }}
                   restore-keys: |
